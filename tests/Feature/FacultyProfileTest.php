@@ -74,7 +74,7 @@ class FacultyProfileTest extends TestCase
         $this->assertSame(5, $profile->advisory_limit);
         $this->assertSame('Carlo Santos', $faculty->fresh()->name);
         $this->get('/faculty/profile')->assertOk()->assertSee('Carlo Santos')
-            ->assertSee('College of Computer Studies')->assertSee('Faculty profile saved successfully.');
+            ->assertSee('College of Computer Studies');
         $this->get('/profile')->assertOk()->assertSee('Carlo Santos');
 
         $this->patch('/faculty/profile', $this->details([

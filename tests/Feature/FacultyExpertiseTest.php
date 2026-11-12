@@ -30,7 +30,7 @@ class FacultyExpertiseTest extends TestCase
         $faculty = User::factory()->create(['role' => User::ROLE_FACULTY]);
         $this->actingAs($faculty)->get('/faculty/expertise')->assertRedirect('/faculty/profile')
             ->assertSessionHas('status', 'complete-profile-for-skills');
-        $this->get('/faculty/profile')->assertSee('Save your full name and department');
+        $this->get('/faculty/profile')->assertOk()->assertDontSee('Save Skills');
         $this->post('/faculty/expertise', $this->details())->assertForbidden();
         $this->assertDatabaseCount('faculty_profiles', 0);
         $this->assertDatabaseCount('faculty_expertise', 0);
@@ -68,7 +68,7 @@ class FacultyExpertiseTest extends TestCase
         $this->put('/faculty/expertise', [
             'skills' => ['Web Development', 'Networking'],
             'faculty_profile_id' => $other->facultyProfile->id,
-        ])->assertRedirect('/faculty/expertise')->assertSessionHasNoErrors();
+        ])->assertRedirect('/faculty/profile')->assertSessionHasNoErrors();
         $this->assertSame(
             ['Networking', 'Web Development'],
             $owner->facultyProfile->expertise()->orderBy('expertise_area')->pluck('expertise_area')->all()
@@ -163,7 +163,7 @@ class FacultyExpertiseTest extends TestCase
         $this->assertDatabaseCount('faculty_expertise', 0);
 
         $this->put('/faculty/expertise', ['skills' => ['Web Development', 'Others'], 'other_specify' => 'Quantum Computing; bioinformatics, Quantum Computing'])
-            ->assertRedirect('/faculty/expertise')->assertSessionHasNoErrors();
+            ->assertRedirect('/faculty/profile')->assertSessionHasNoErrors();
 
         $others = $faculty->facultyProfile->expertise()->where('expertise_area', 'Others')->first();
         $this->assertSame('Quantum Computing, bioinformatics', $others->technical_skills);

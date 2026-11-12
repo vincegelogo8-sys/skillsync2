@@ -12,9 +12,20 @@ class FacultyProfileController extends Controller
 {
     public function edit(Request $request): View
     {
+        $profile = $request->user()->facultyProfile;
+        $entries = $profile
+            ? $profile->expertise()
+                ->whereIn('expertise_area', config('expertise.areas'))
+                ->orderBy('expertise_area')->get()
+            : collect();
+
         return view('faculty.profile.edit', [
             'user' => $request->user(),
-            'profile' => $request->user()->facultyProfile,
+            'profile' => $profile,
+            'entries' => $entries,
+            'areas' => array_values(array_diff(config('expertise.areas'), [config('expertise.other')])),
+            'otherArea' => config('expertise.other'),
+            'otherSpecify' => (string) $entries->firstWhere('expertise_area', config('expertise.other'))?->technical_skills,
         ]);
     }
 

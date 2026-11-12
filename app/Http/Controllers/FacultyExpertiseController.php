@@ -34,7 +34,7 @@ class FacultyExpertiseController extends Controller
             $request->validated('other_specify'),
         );
 
-        return redirect()->route('faculty.expertise.index')->with('status', 'faculty-skills-updated');
+        return redirect()->route('faculty.profile.edit')->with('status', 'faculty-skills-updated');
     }
 
     public function edit(FacultyExpertiseRequest $request): View
