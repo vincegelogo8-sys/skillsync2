@@ -1,3 +1,4 @@
+
 <x-app-layout>
     <x-slot name="header">
         <h1 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Student and Faculty Accounts') }}</h1>
@@ -46,7 +47,6 @@
                             <x-text-input id="q" name="q" type="search" class="mt-1 block w-full" maxlength="100" :value="$search ?? ''" />
                         </div>
                         <x-primary-button>{{ __('Apply') }}</x-primary-button>
-                        <a href="{{ route('admin.accounts.index', ['type' => 'student']) }}" class="text-sm text-indigo-600 underline">{{ __('Clear') }}</a>
                     </form>
 
                     <form method="GET" action="{{ route('admin.accounts.index') }}" class="flex flex-wrap items-end gap-4">
@@ -95,7 +95,6 @@
                             <x-text-input id="q" name="q" type="search" class="mt-1 block w-full" maxlength="100" :value="$search ?? ''" />
                         </div>
                         <x-primary-button>{{ __('Apply') }}</x-primary-button>
-                        <a href="{{ route('admin.accounts.index', ['type' => 'faculty']) }}" class="text-sm text-indigo-600 underline">{{ __('Clear') }}</a>
                     </form>
                     <form method="GET" action="{{ route('admin.accounts.index') }}" class="flex flex-wrap items-end gap-4">
                         <input type="hidden" name="type" value="faculty">

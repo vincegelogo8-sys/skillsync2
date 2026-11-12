@@ -1,81 +1,77 @@
+
 <x-app-layout>
     <x-slot name="header">
-        <h1 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Faculty Profile') }}</h1>
+        <h1 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Faculty Profile') }}
+        </h1>
     </x-slot>
-
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
             <section class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                 <div class="max-w-xl">
-                    <h3 class="text-lg font-medium text-gray-900">{{ __('Basic information') }}</h3>
-                    <p class="mt-4 text-sm text-gray-700 break-words">{{ $user->email }}</p>
-                    <a href="{{ route('profile.edit') }}" class="text-sm text-indigo-600 underline">
-                        {{ __('Account Settings') }}
-                    </a>
 
-                    @if (session('status') === 'faculty-profile-updated')
-                        <p role="status" class="ui-alert mt-4 text-sm font-medium text-green-700">
-                            {{ __('Faculty profile saved successfully.') }}
+                    <h3 class="text-lg font-medium text-gray-900">
+                        {{ __('Basic information') }}
+                    </h3>
+
+                    <div class="mt-4 space-y-4">
+
+                        {{-- Email --}}
+                        <p class="text-sm text-gray-700 break-words">
+                            {{ $user->email }}
                         </p>
-                    @endif
 
-                    @if (in_array(session('status'), ['complete-profile-for-expertise', 'complete-profile-for-skills'], true))
-                        <p role="status" class="ui-alert mt-4 text-sm font-medium text-amber-800">
-                            {{ __('Save your full name and department before managing faculty skills.') }}
-                        </p>
-                    @endif
-
-                    @php
-                        $name = old('name', $user->name);
-                        $department = old('department', $profile?->department);
-                    @endphp
-
-                    <form method="POST" action="{{ route('faculty.profile.update') }}" class="mt-6 space-y-6">
-                        @csrf
-                        @method('PATCH')
-
+                        {{-- Full Name --}}
                         <div>
-                            <x-input-label for="name" :value="__('Full Name')" />
-                            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full"
-                                :value="is_string($name) ? $name : ''" maxlength="255" autocomplete="name" required
-                                aria-describedby="name_error" :aria-invalid="$errors->has('name') ? 'true' : 'false'" />
-                            <x-input-error id="name_error" :messages="$errors->get('name')" class="mt-2" />
+                            <p class="text-sm font-medium text-gray-700">
+                                {{ __('Full Name') }}
+                            </p>
+                            <p class="mt-1 text-sm text-gray-700 break-words">
+                                {{ $user->name }}
+                            </p>
                         </div>
 
+                        {{-- Department --}}
                         <div>
-                            <x-input-label for="department" :value="__('Department')" />
-                            <x-text-input id="department" name="department" type="text" class="mt-1 block w-full"
-                                :value="is_string($department) ? $department : ''" maxlength="150" required
-                                aria-describedby="department_error" :aria-invalid="$errors->has('department') ? 'true' : 'false'" />
-                            <x-input-error id="department_error" :messages="$errors->get('department')" class="mt-2" />
+                            <p class="text-sm font-medium text-gray-700">
+                                {{ __('Department') }}
+                            </p>
+                            <p class="mt-1 text-sm text-gray-700 break-words">
+                                {{ $profile?->department ?? 'Not specified' }}
+                            </p>
                         </div>
 
-                        <x-primary-button>{{ __('Save Faculty Profile') }}</x-primary-button>
-                    </form>
+                    </div>
                 </div>
             </section>
+
+            {{-- My Skills Section --}}
             @if ($profile)
                 <section class="mt-6 bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
-                        <h3 class="text-lg font-medium text-gray-900">{{ __('My Skills') }}</h3>
-                        <a href="{{ route('faculty.expertise.index') }}" class="text-sm text-indigo-600 underline">
-                            {{ $skills->isEmpty() ? __('Select faculty skills') : __('Edit faculty skills') }}
-                        </a>
-                    </div>
+
+                    <h3 class="text-lg font-medium text-gray-900">
+                        {{ __('My Skills') }}
+                    </h3>
+
                     <ul class="mt-4 flex flex-wrap gap-2">
                         @forelse ($skills as $entry)
-                            <li class="concept-chip">{{ $entry->expertise_area === $otherArea && filled($entry->technical_skills) ? $entry->expertise_area.': '.$entry->technical_skills : $entry->expertise_area }}</li>
+                            <li class="concept-chip">
+                                {{ $entry->expertise_area === $otherArea && filled($entry->technical_skills)
+                                    ? $entry->expertise_area . ': ' . $entry->technical_skills
+                                    : $entry->expertise_area }}
+                            </li>
                         @empty
-                            <li class="text-sm text-gray-600">{{ __('No faculty skills selected yet.') }}</li>
+                            <li class="text-sm text-gray-600">
+                                {{ __('No faculty skills selected yet.') }}
+                            </li>
                         @endforelse
                     </ul>
+
                 </section>
-                <nav class="profile-links" aria-label="{{ __('Faculty profile sections') }}">
-                    <a href="{{ route('faculty.expertise.index') }}">{{ __('Faculty Skills') }}</a>
-                    <a href="{{ route('faculty.assignments.index') }}">{{ __('Assigned Students') }}</a>
-                </nav>
             @endif
+
         </div>
     </div>
 </x-app-layout>
