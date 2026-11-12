@@ -13,19 +13,17 @@ class FacultyProfileController extends Controller
     public function edit(Request $request): View
     {
         $profile = $request->user()->facultyProfile;
-        $entries = $profile
-            ? $profile->expertise()
-                ->whereIn('expertise_area', config('expertise.areas'))
-                ->orderBy('expertise_area')->get()
-            : collect();
 
         return view('faculty.profile.edit', [
             'user' => $request->user(),
             'profile' => $profile,
-            'entries' => $entries,
-            'areas' => array_values(array_diff(config('expertise.areas'), [config('expertise.other')])),
+            // The "My Skills" card on the profile shows the faculty member's own saved skills.
+            'skills' => $profile
+                ? $profile->expertise()
+                    ->whereIn('expertise_area', config('expertise.areas'))
+                    ->orderBy('expertise_area')->get()
+                : collect(),
             'otherArea' => config('expertise.other'),
-            'otherSpecify' => (string) $entries->firstWhere('expertise_area', config('expertise.other'))?->technical_skills,
         ]);
     }
 

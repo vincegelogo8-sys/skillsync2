@@ -30,7 +30,7 @@ class FacultyExpertiseTest extends TestCase
         $faculty = User::factory()->create(['role' => User::ROLE_FACULTY]);
         $this->actingAs($faculty)->get('/faculty/expertise')->assertRedirect('/faculty/profile')
             ->assertSessionHas('status', 'complete-profile-for-skills');
-        $this->get('/faculty/profile')->assertOk()->assertDontSee('Save Skills');
+        $this->get('/faculty/profile')->assertSee('Save your full name and department');
         $this->post('/faculty/expertise', $this->details())->assertForbidden();
         $this->assertDatabaseCount('faculty_profiles', 0);
         $this->assertDatabaseCount('faculty_expertise', 0);
@@ -58,8 +58,11 @@ class FacultyExpertiseTest extends TestCase
         $other->facultyProfile->expertise()->create($this->details(['expertise_area' => 'Networking']));
 
         $page = $this->actingAs($owner)->get('/faculty/expertise')->assertOk()
-            ->assertSee('Faculty Skills')->assertSee('My Skills')
+            ->assertSee('Faculty Skills')->assertSee('Select Your Skills')
             ->assertSee('Web Development')->assertSee('Database Systems')
+            // The saved-skills chips live on the Faculty Profile page, not here.
+            ->assertDontSee('concept-chip', false)
+            ->assertDontSee('No faculty skills selected yet.')
             ->assertSee('name="skills[]"', false)
             ->assertDontSee('technical_skills')
             ->assertDontSee('faculty_profile_id');
@@ -68,7 +71,7 @@ class FacultyExpertiseTest extends TestCase
         $this->put('/faculty/expertise', [
             'skills' => ['Web Development', 'Networking'],
             'faculty_profile_id' => $other->facultyProfile->id,
-        ])->assertRedirect('/faculty/profile')->assertSessionHasNoErrors();
+        ])->assertRedirect('/faculty/expertise')->assertSessionHasNoErrors();
         $this->assertSame(
             ['Networking', 'Web Development'],
             $owner->facultyProfile->expertise()->orderBy('expertise_area')->pluck('expertise_area')->all()
@@ -77,8 +80,11 @@ class FacultyExpertiseTest extends TestCase
         $this->assertSame(['Networking'], $other->facultyProfile->expertise()->pluck('expertise_area')->all());
         $this->assertDatabaseCount('faculty_expertise', 3);
 
-        $persisted = $this->get('/faculty/expertise')->assertOk();
-        $persisted->assertSee('<li class="concept-chip">Networking</li>', false)
+        $this->get('/faculty/expertise')->assertOk()->assertDontSee('concept-chip', false);
+
+        // The saved skills are shown as "My Skills" on the Faculty Profile page.
+        $this->get('/faculty/profile')->assertOk()
+            ->assertSee('<li class="concept-chip">Networking</li>', false)
             ->assertSee('<li class="concept-chip">Web Development</li>', false)
             ->assertDontSee('<li class="concept-chip">Database Systems</li>', false);
     }
@@ -163,7 +169,7 @@ class FacultyExpertiseTest extends TestCase
         $this->assertDatabaseCount('faculty_expertise', 0);
 
         $this->put('/faculty/expertise', ['skills' => ['Web Development', 'Others'], 'other_specify' => 'Quantum Computing; bioinformatics, Quantum Computing'])
-            ->assertRedirect('/faculty/profile')->assertSessionHasNoErrors();
+            ->assertRedirect('/faculty/expertise')->assertSessionHasNoErrors();
 
         $others = $faculty->facultyProfile->expertise()->where('expertise_area', 'Others')->first();
         $this->assertSame('Quantum Computing, bioinformatics', $others->technical_skills);

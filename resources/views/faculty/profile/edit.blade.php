@@ -5,100 +5,76 @@
 
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto space-y-6 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <section class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                 <div class="max-w-xl">
                     <h3 class="text-lg font-medium text-gray-900">{{ __('Basic information') }}</h3>
+                    <p class="mt-4 text-sm text-gray-700 break-words">{{ $user->email }}</p>
+                    <a href="{{ route('profile.edit') }}" class="text-sm text-indigo-600 underline">
+                        {{ __('Account Settings') }}
+                    </a>
 
-                    <dl class="mt-4 space-y-4">
-                        <div>
-                            <dt class="text-sm font-medium text-gray-600">{{ __('Email') }}</dt>
-                            <dd class="mt-1 text-sm text-gray-900 break-words">{{ $user->email }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-600">{{ __('Full Name') }}</dt>
-                            <dd class="mt-1 text-sm text-gray-900 break-words">{{ $user->name }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-600">{{ __('Department') }}</dt>
-                            <dd class="mt-1 text-sm text-gray-900 break-words">{{ $profile?->department ?? '—' }}</dd>
-                        </div>
-                    </dl>
-                </div>
-            </section>
-
-            @if ($profile)
-                @php
-                    $selectedSkills = old('skills', $entries->pluck('expertise_area')->all());
-                    $selectedSkills = is_array($selectedSkills) ? $selectedSkills : [];
-                    $othersChecked = in_array($otherArea, $selectedSkills, true);
-                    $otherText = old('other_specify', $otherSpecify);
-                @endphp
-                <section class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                    <h3 class="text-lg font-medium text-gray-900">{{ __('My Skills') }}</h3>
-                    <p class="mt-1 text-sm text-gray-600">
-                        {{ __('Select the categories that reflect your faculty skills.') }}
-                    </p>
-
-                    @if (session('status') === 'faculty-skills-updated')
+                    @if (session('status') === 'faculty-profile-updated')
                         <p role="status" class="ui-alert mt-4 text-sm font-medium text-green-700">
-                            {{ __('Faculty skills saved successfully.') }}
+                            {{ __('Faculty profile saved successfully.') }}
                         </p>
                     @endif
 
-                    <form method="POST" action="{{ route('faculty.expertise.skills.update') }}" class="mt-6 space-y-6">
+                    @if (in_array(session('status'), ['complete-profile-for-expertise', 'complete-profile-for-skills'], true))
+                        <p role="status" class="ui-alert mt-4 text-sm font-medium text-amber-800">
+                            {{ __('Save your full name and department before managing faculty skills.') }}
+                        </p>
+                    @endif
+
+                    @php
+                        $name = old('name', $user->name);
+                        $department = old('department', $profile?->department);
+                    @endphp
+
+                    <form method="POST" action="{{ route('faculty.profile.update') }}" class="mt-6 space-y-6">
                         @csrf
-                        @method('PUT')
+                        @method('PATCH')
 
-                        <fieldset class="space-y-3">
-                            <legend class="sr-only">{{ __('Faculty Skills') }}</legend>
-                            @foreach ($areas as $area)
-                                <label for="skill-{{ $loop->index }}" class="flex items-center gap-3">
-                                    <input
-                                        id="skill-{{ $loop->index }}"
-                                        name="skills[]"
-                                        type="checkbox"
-                                        value="{{ $area }}"
-                                        @checked(in_array($area, $selectedSkills, true))
-                                        class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
-                                    >
-                                    <span class="text-sm text-gray-800">{{ $area }}</span>
-                                </label>
-                            @endforeach
+                        <div>
+                            <x-input-label for="name" :value="__('Full Name')" />
+                            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full"
+                                :value="is_string($name) ? $name : ''" maxlength="255" autocomplete="name" required
+                                aria-describedby="name_error" :aria-invalid="$errors->has('name') ? 'true' : 'false'" />
+                            <x-input-error id="name_error" :messages="$errors->get('name')" class="mt-2" />
+                        </div>
 
-                            <label for="skill-others" class="flex items-center gap-3">
-                                <input
-                                    id="skill-others"
-                                    name="skills[]"
-                                    type="checkbox"
-                                    value="{{ $otherArea }}"
-                                    @checked($othersChecked)
-                                    aria-controls="other-specify-wrap"
-                                    onchange="document.getElementById('other-specify-wrap').hidden = !this.checked; if (this.checked) document.getElementById('other_specify').focus();"
-                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
-                                >
-                                <span class="text-sm text-gray-800">{{ __('Others') }}</span>
-                            </label>
-                            <div id="other-specify-wrap" class="ml-8" @if (! $othersChecked) hidden @endif>
-                                <x-input-label for="other_specify" :value="__('Please specify')" />
-                                <x-text-input
-                                    id="other_specify"
-                                    name="other_specify"
-                                    type="text"
-                                    class="mt-1 block w-full max-w-xl"
-                                    maxlength="255"
-                                    :value="$otherText"
-                                    placeholder="{{ __('e.g. Quantum Computing, Bioinformatics') }}"
-                                />
-                                <p class="mt-1 text-xs text-gray-600">{{ __('Separate several skills with commas. Proposals that mention them will be matched to you.') }}</p>
-                                <x-input-error :messages="$errors->get('other_specify')" class="mt-2" />
-                            </div>
-                        </fieldset>
-                        <x-input-error :messages="$errors->get('skills')" class="mt-2" />
-                        <x-input-error :messages="$errors->get('skills.*')" class="mt-2" />
-                        <x-primary-button>{{ __('Save Skills') }}</x-primary-button>
+                        <div>
+                            <x-input-label for="department" :value="__('Department')" />
+                            <x-text-input id="department" name="department" type="text" class="mt-1 block w-full"
+                                :value="is_string($department) ? $department : ''" maxlength="150" required
+                                aria-describedby="department_error" :aria-invalid="$errors->has('department') ? 'true' : 'false'" />
+                            <x-input-error id="department_error" :messages="$errors->get('department')" class="mt-2" />
+                        </div>
+
+                        <x-primary-button>{{ __('Save Faculty Profile') }}</x-primary-button>
                     </form>
+                </div>
+            </section>
+            @if ($profile)
+                <section class="mt-6 bg-white p-4 shadow sm:rounded-lg sm:p-8">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <h3 class="text-lg font-medium text-gray-900">{{ __('My Skills') }}</h3>
+                        <a href="{{ route('faculty.expertise.index') }}" class="text-sm text-indigo-600 underline">
+                            {{ $skills->isEmpty() ? __('Select faculty skills') : __('Edit faculty skills') }}
+                        </a>
+                    </div>
+                    <ul class="mt-4 flex flex-wrap gap-2">
+                        @forelse ($skills as $entry)
+                            <li class="concept-chip">{{ $entry->expertise_area === $otherArea && filled($entry->technical_skills) ? $entry->expertise_area.': '.$entry->technical_skills : $entry->expertise_area }}</li>
+                        @empty
+                            <li class="text-sm text-gray-600">{{ __('No faculty skills selected yet.') }}</li>
+                        @endforelse
+                    </ul>
                 </section>
+                <nav class="profile-links" aria-label="{{ __('Faculty profile sections') }}">
+                    <a href="{{ route('faculty.expertise.index') }}">{{ __('Faculty Skills') }}</a>
+                    <a href="{{ route('faculty.assignments.index') }}">{{ __('Assigned Students') }}</a>
+                </nav>
             @endif
         </div>
     </div>

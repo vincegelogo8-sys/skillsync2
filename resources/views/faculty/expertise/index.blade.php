@@ -31,9 +31,9 @@
                     $selectedSkills = is_array($selectedSkills) ? $selectedSkills : [];
                 @endphp
                 <section class="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                    <h3 class="text-lg font-medium text-gray-900">{{ __('My Skills') }}</h3>
+                    <h3 class="text-lg font-medium text-gray-900">{{ __('Select Your Skills') }}</h3>
                     <p class="mt-1 text-sm text-gray-600">
-                        {{ __('Select the categories that reflect your faculty skills.') }}
+                        {{ __('Select the categories that reflect your faculty skills. Your saved skills are shown under My Skills on your Faculty Profile.') }}
                     </p>
 
                     <form method="POST" action="{{ route('faculty.expertise.skills.update') }}" class="mt-6 space-y-6">
@@ -94,19 +94,6 @@
                     </form>
                 </section>
             @endif
-
-            <section class="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                <h3 class="text-lg font-medium text-gray-900">
-                    {{ __('My Skills') }}
-                </h3>
-                <ul class="mt-4 flex flex-wrap gap-2">
-                    @forelse ($entries as $entry)
-                        <li class="concept-chip">{{ $entry->expertise_area === $otherArea && filled($entry->technical_skills) ? $entry->expertise_area.': '.$entry->technical_skills : $entry->expertise_area }}</li>
-                    @empty
-                        <li class="text-sm text-gray-600">{{ __('No faculty skills selected yet.') }}</li>
-                    @endforelse
-                </ul>
-            </section>
 
         </div>
     </div>

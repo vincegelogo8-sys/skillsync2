@@ -61,6 +61,37 @@ class FacultyProfileTest extends TestCase
         $this->assertDatabaseCount('faculty_profiles', 0);
     }
 
+    public function test_profile_shows_only_the_faculty_members_own_skills_as_my_skills(): void
+    {
+        $faculty = $this->faculty();
+        $faculty->facultyProfile()->create(['department' => 'Computing']);
+        $faculty->facultyProfile->expertise()->create(['expertise_area' => 'Web Development']);
+        $faculty->facultyProfile->expertise()->create(['expertise_area' => 'Networking']);
+        $other = $this->faculty();
+        $other->facultyProfile()->create(['department' => 'Computing']);
+        $other->facultyProfile->expertise()->create(['expertise_area' => 'Database Systems']);
+
+        $this->actingAs($faculty)->get('/faculty/profile')->assertOk()
+            ->assertSee('My Skills')
+            ->assertSee('<li class="concept-chip">Web Development</li>', false)
+            ->assertSee('<li class="concept-chip">Networking</li>', false)
+            ->assertDontSee('<li class="concept-chip">Database Systems</li>', false)
+            ->assertSee('Edit faculty skills')
+            ->assertDontSee('name="skills[]"', false);
+    }
+
+    public function test_profile_invites_a_faculty_member_without_skills_to_select_them(): void
+    {
+        $faculty = $this->faculty();
+        $faculty->facultyProfile()->create(['department' => 'Computing']);
+
+        $this->actingAs($faculty)->get('/faculty/profile')->assertOk()
+            ->assertSee('My Skills')
+            ->assertSee('No faculty skills selected yet.')
+            ->assertSee('Select faculty skills')
+            ->assertDontSee('concept-chip', false);
+    }
+
     public function test_faculty_can_create_and_update_one_profile_and_the_account_name(): void
     {
         $faculty = $this->faculty();
@@ -74,7 +105,7 @@ class FacultyProfileTest extends TestCase
         $this->assertSame(5, $profile->advisory_limit);
         $this->assertSame('Carlo Santos', $faculty->fresh()->name);
         $this->get('/faculty/profile')->assertOk()->assertSee('Carlo Santos')
-            ->assertSee('College of Computer Studies');
+            ->assertSee('College of Computer Studies')->assertSee('Faculty profile saved successfully.');
         $this->get('/profile')->assertOk()->assertSee('Carlo Santos');
 
         $this->patch('/faculty/profile', $this->details([
