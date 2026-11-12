@@ -23,12 +23,15 @@ class AdviserRequestController extends Controller
         $query = AdviserRequest::with(['studentProfile.user', 'facultyProfile.user', 'researchProposal.assignment.facultyProfile.user']);
         if ($role === User::ROLE_STUDENT) {
             $query->where('student_profile_id', $request->user()->studentProfile?->id ?? 0);
-            // Once an adviser has accepted the proposal, requests that were closed because
-            // of it are not shown to the student. Only the accepted request remains.
+            // An accepted request moves to Adviser Assignments, so it no longer appears here.
+            $query->where('status', '!=', 'approved');
+            // Requests that were closed because another adviser accepted the proposal are hidden too.
             $query->where(fn ($q) => $q->where('status', '!=', 'cancelled')
                 ->orWhereDoesntHave('researchProposal.assignment', fn ($a) => $a->where('status', AdviserAssignment::STATUS_ACTIVE)));
         } elseif ($role === User::ROLE_FACULTY) {
-            $query->where('faculty_profile_id', $request->user()->facultyProfile?->id ?? 0);
+            // An accepted request moves to Assigned Students, so it no longer appears here.
+            $query->where('faculty_profile_id', $request->user()->facultyProfile?->id ?? 0)
+                ->where('status', '!=', 'approved');
         }
 
         return view('requests.index', ['requests' => $query->latest('id')->paginate(15), 'role' => $role]);

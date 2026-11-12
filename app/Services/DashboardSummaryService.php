@@ -90,6 +90,11 @@ class DashboardSummaryService
         // Full lists for the "View all" pop-ups, scoped exactly like the full pages:
         // admins see everything, faculty see their own, students see their own.
         $allRequestsQuery = (clone $requests);
+        if ($role !== User::ROLE_ADMIN) {
+            // Same rule as AdviserRequestController::index: an accepted request moves to
+            // Adviser Assignments / Assigned Students and is not listed with the requests.
+            $allRequestsQuery->where('status', '!=', 'approved');
+        }
         if ($role === User::ROLE_STUDENT) {
             // Same rule as AdviserRequestController::index: requests closed because another
             // adviser accepted the proposal are hidden from the student.

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AdviserRequest;
 use App\Models\FacultyProfile;
 use App\Models\User;
 use App\Services\AdviserRequestService;
@@ -43,36 +44,58 @@ class AdviserRequestClosureVisibilityTest extends TestCase
         return [$student, $requests];
     }
 
-    public function test_when_one_adviser_accepts_the_others_are_closed_hidden_from_the_student_and_explained_to_them(): void
+    public function test_when_one_adviser_accepts_the_accepted_request_moves_to_assignments_and_the_others_are_removed(): void
     {
         [$first, $second, $third] = [$this->faculty(), $this->faculty(), $this->faculty()];
         [$student, $requests] = $this->studentWithRequests($first, $second, $third);
 
         $this->actingAs($first->user)->post('/faculty/requests/'.$requests[0]->id.'/approve')->assertSessionHasNoErrors();
 
-        // Student: only the accepted request remains.
+        // Student: the accepted request is under Adviser Assignments, not Adviser Requests;
+        // the competing pending requests are hidden.
         $this->actingAs($student)->get('/student/requests')
             ->assertOk()
-            ->assertSee($first->user->name)
+            ->assertDontSee($first->user->name)
             ->assertDontSee($second->user->name)
             ->assertDontSee($third->user->name)
             ->assertDontSee('Delete Request');
+        $this->get('/student/assignments')->assertOk()->assertSee($first->user->name);
 
-        // The other advisers still see their request, closed, and who accepted the student.
+        // Accepting adviser: the student moves from Adviser Requests to Assigned Students.
+        $this->actingAs($first->user)->get('/faculty/requests')->assertOk()->assertDontSee($student->name);
+        $this->get('/faculty/assignments')->assertOk()->assertSee($student->name);
+
+        // The other advisers no longer see the request and cannot accept it.
         foreach ([$second, $third] as $other) {
             $this->actingAs($other->user)->get('/faculty/requests')
                 ->assertOk()
-                ->assertSee('This request was closed because the student has already been accepted by '.$first->user->name)
+                ->assertDontSee($student->name)
                 ->assertDontSee('Accept Request');
         }
+        $this->actingAs($second->user)->post('/faculty/requests/'.$requests[1]->id.'/approve')->assertNotFound();
+        $this->assertSame('cancelled', AdviserRequest::withTrashed()->find($requests[1]->id)->status);
+        $this->assertSame('cancelled', AdviserRequest::withTrashed()->find($requests[2]->id)->status);
+    }
 
-        // They can no longer accept it.
-        $this->actingAs($second->user)->post('/faculty/requests/'.$requests[1]->id.'/approve')->assertSessionHasErrors('assignment');
-        $this->assertSame('cancelled', $requests[1]->fresh()->status);
-        $this->assertSame('cancelled', $requests[2]->fresh()->status);
+    public function test_declined_requests_stay_in_the_lists_while_the_accepted_request_is_hidden(): void
+    {
+        [$first, $second, $third] = [$this->faculty(), $this->faculty(), $this->faculty()];
+        [$student, $requests] = $this->studentWithRequests($first, $second, $third);
 
-        // The accepting adviser does not see the "closed" notice on their own request.
-        $this->actingAs($first->user)->get('/faculty/requests')->assertOk()->assertDontSee('This request was closed because');
+        $this->actingAs($second->user)->patch('/faculty/requests/'.$requests[1]->id.'/decline')->assertSessionHasNoErrors();
+        $this->actingAs($first->user)->post('/faculty/requests/'.$requests[0]->id.'/approve')->assertSessionHasNoErrors();
+
+        // Student: the declined request remains; the accepted one moved to assignments
+        // and the other pending one was closed and hidden.
+        $this->actingAs($student)->get('/student/requests')
+            ->assertOk()
+            ->assertSee($second->user->name)
+            ->assertDontSee($first->user->name)
+            ->assertDontSee($third->user->name);
+
+        // The adviser who declined still sees the declined request; the accepting adviser does not.
+        $this->actingAs($second->user)->get('/faculty/requests')->assertOk()->assertSee($student->name);
+        $this->actingAs($first->user)->get('/faculty/requests')->assertOk()->assertDontSee($student->name);
     }
 
     public function test_cancelled_requests_stay_visible_to_the_student_while_nobody_has_accepted(): void

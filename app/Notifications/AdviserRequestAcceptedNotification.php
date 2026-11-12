@@ -24,8 +24,8 @@ class AdviserRequestAcceptedNotification extends Notification
             ->line('Your research adviser request has been accepted.')
             ->line('Research Title: '.$this->request->researchProposal->title)
             ->line('Faculty Adviser: '.$this->request->facultyProfile->user->name)
-            ->line('Please log in to SKILLSYNC to view the updated status of your adviser request.')
-            ->action('View Adviser Request', app(EmailLinkGenerator::class)->route('student.requests.index'))
+            ->line('Please log in to SKILLSYNC to view your adviser assignment.')
+            ->action('View Adviser Assignment', app(EmailLinkGenerator::class)->route('student.assignments.index'))
             ->salutation("Thank you,\nSKILLSYNC\nResearch Adviser Recommendation System");
     }
 }

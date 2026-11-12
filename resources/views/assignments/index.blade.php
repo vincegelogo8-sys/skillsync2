@@ -34,55 +34,49 @@
                 </p>
             @endif
 
-            <nav aria-label="{{ __('Assignment view') }}" class="flex flex-wrap gap-3 border-b border-gray-200 pb-3">
-                @if ($role === 'admin')
+            @if ($role === 'admin')
+                {{-- View tabs, course filter, search and sort are shown to Admin only. --}}
+                <nav aria-label="{{ __('Assignment view') }}" class="flex flex-wrap gap-3 border-b border-gray-200 pb-3">
                     <a href="{{ route('admin.assignments.index', array_filter([...$filters, 'view' => 'grouped'])) }}"
                        @if ($viewMode === 'grouped') aria-current="page" @endif
                        class="button {{ $viewMode === 'grouped' ? 'button-primary' : 'button-secondary' }}">{{ __('Grouped by adviser') }}</a>
                     <a href="{{ route('admin.assignments.index', array_filter([...$filters, 'view' => 'list'])) }}"
                        @if ($viewMode === 'list') aria-current="page" @endif
                        class="button {{ $viewMode === 'list' ? 'button-primary' : 'button-secondary' }}">{{ __('Flat list') }}</a>
-                @else
-                    <a href="{{ route('faculty.assignments.index', array_filter([...$filters, 'view' => 'list'])) }}"
-                       @if ($viewMode === 'list') aria-current="page" @endif
-                       class="button {{ $viewMode === 'list' ? 'button-primary' : 'button-secondary' }}">{{ __('List') }}</a>
-                    <a href="{{ route('faculty.assignments.index', array_filter([...$filters, 'view' => 'sections'])) }}"
-                       @if ($viewMode === 'sections') aria-current="page" @endif
-                       class="button {{ $viewMode === 'sections' ? 'button-primary' : 'button-secondary' }}">{{ __('Sections') }}</a>
-                @endif
-            </nav>
+                </nav>
 
-            <x-course-section-filter
-                :route="$role === 'admin' ? 'admin.assignments.index' : 'faculty.assignments.index'"
-                :course="$filters['course']"
-                :section="$filters['section']"
-                :course-counts="$courseCounts"
-                :section-counts="$sectionCounts"
-                :all-course-count="$allCourseCount"
-                :query-params="[...$queryParams, 'view' => $viewMode]"
-            />
+                <x-course-section-filter
+                    :route="$role === 'admin' ? 'admin.assignments.index' : 'faculty.assignments.index'"
+                    :course="$filters['course']"
+                    :section="$filters['section']"
+                    :course-counts="$courseCounts"
+                    :section-counts="$sectionCounts"
+                    :all-course-count="$allCourseCount"
+                    :query-params="[...$queryParams, 'view' => $viewMode]"
+                />
 
-            <form method="GET" action="{{ route($role.'.assignments.index') }}" class="flex flex-wrap items-end gap-3">
-                <input type="hidden" name="view" value="{{ $viewMode }}">
-                @foreach (['course', 'section', 'sort', 'dir'] as $key)
-                    @if (($queryParams[$key] ?? null) !== null)
-                        <input type="hidden" name="{{ $key }}" value="{{ $queryParams[$key] }}">
-                    @endif
-                @endforeach
-                <div>
-                    <x-input-label for="q" :value="__('Search')" />
-                    <input id="q" name="q" type="search" maxlength="100" value="{{ $filters['q'] ?? '' }}" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                </div>
-                <button type="submit" class="button button-secondary">{{ __('Apply') }}</button>
-            </form>
+                <form method="GET" action="{{ route($role.'.assignments.index') }}" class="flex flex-wrap items-end gap-3">
+                    <input type="hidden" name="view" value="{{ $viewMode }}">
+                    @foreach (['course', 'section', 'sort', 'dir'] as $key)
+                        @if (($queryParams[$key] ?? null) !== null)
+                            <input type="hidden" name="{{ $key }}" value="{{ $queryParams[$key] }}">
+                        @endif
+                    @endforeach
+                    <div>
+                        <x-input-label for="q" :value="__('Search')" />
+                        <input id="q" name="q" type="search" maxlength="100" value="{{ $filters['q'] ?? '' }}" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                    </div>
+                    <button type="submit" class="button button-secondary">{{ __('Apply') }}</button>
+                </form>
 
-            <x-sort-controls
-                :route="$role === 'admin' ? 'admin.assignments.index' : 'faculty.assignments.index'"
-                :options="$sortOptions"
-                :sort="$sorting['sort']"
-                :dir="$sorting['dir']"
-                :query-params="[...$queryParams, 'view' => $viewMode]"
-            />
+                <x-sort-controls
+                    :route="$role === 'admin' ? 'admin.assignments.index' : 'faculty.assignments.index'"
+                    :options="$sortOptions"
+                    :sort="$sorting['sort']"
+                    :dir="$sorting['dir']"
+                    :query-params="[...$queryParams, 'view' => $viewMode]"
+                />
+            @endif
 
             @if ($role === 'admin' && $viewMode === 'grouped')
                 @if ($advisers->getCollection()->contains(fn (array $adviser) => $adviser['assignments']->isNotEmpty()))

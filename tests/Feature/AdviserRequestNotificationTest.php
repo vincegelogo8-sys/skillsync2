@@ -129,7 +129,7 @@ class AdviserRequestNotificationTest extends TestCase
         Notification::assertSentTo($student, AdviserRequestAcceptedNotification::class, function ($notification) use ($student, $faculty) {
             $mail = $notification->toMail($student);
             $this->assertSame('Adviser Request Accepted - SKILLSYNC', $mail->subject);
-            $this->assertSame('http://192.168.50.20:8000/student/requests', $mail->actionUrl);
+            $this->assertSame('http://192.168.50.20:8000/student/assignments', $mail->actionUrl);
             $this->assertStringContainsString($faculty->name, implode(' ', $mail->introLines));
             $this->assertSame('student@gmail.com', $student->routeNotificationFor('mail', $notification));
 

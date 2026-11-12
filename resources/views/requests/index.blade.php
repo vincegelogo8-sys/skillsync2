@@ -64,7 +64,6 @@
                 </article>
             @empty
                 <x-empty-state title="{{ __('No adviser requests.') }}" />
-                @if ($role === 'student')<a href="{{ route('student.proposals.index') }}" class="text-sm text-indigo-600 underline">{{ __('View proposals') }}</a>@endif
             @endforelse
         </div>
         <div class="mt-5">{{ $requests->links() }}</div>
