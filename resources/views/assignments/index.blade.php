@@ -74,7 +74,6 @@
                     <input id="q" name="q" type="search" maxlength="100" value="{{ $filters['q'] ?? '' }}" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                 </div>
                 <button type="submit" class="button button-secondary">{{ __('Apply') }}</button>
-                <a href="{{ route($role.'.assignments.index', ['view' => $viewMode]) }}" class="text-sm text-indigo-600 underline">{{ __('Clear') }}</a>
             </form>
 
             <x-sort-controls
