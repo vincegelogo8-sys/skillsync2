@@ -1,4 +1,5 @@
 <?php
+// FILE LOCATION: app/Http/Controllers/AdviserRequestController.php  (REPLACE the existing file; look for the "NEW" comments)
 
 namespace App\Http\Controllers;
 
@@ -8,6 +9,7 @@ use App\Models\FacultyProfile;
 use App\Models\ResearchProposal;
 use App\Models\User;
 use App\Services\AdviserRequestService;
+use App\Support\ProposalTextView; // NEW LINE
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -89,6 +91,11 @@ class AdviserRequestController extends Controller
 
         $proposal = $adviserRequest->researchProposal;
         abort_unless($proposal, 404);
+
+        // NEW BLOCK (3 lines): the container asks for the text only
+        if (ProposalTextView::requested($request)) {
+            return ProposalTextView::response($proposal, $user->name);
+        }
 
         return response()->view('proposals.reader', [
             'proposal' => $proposal->loadMissing(['studentProfile.user', 'analysis']),

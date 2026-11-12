@@ -1,3 +1,4 @@
+{{-- FILE LOCATION: resources/views/student/proposal/index.blade.php  (REPLACE; rename this file to index.blade.php) --}}
 <x-app-layout>
 
     <x-slot name="header">
@@ -140,8 +141,11 @@
                             {{-- ACTIONS --}}
                             <div class="flex flex-wrap items-center gap-3">
 
+                                {{-- CHANGED: the next link got data-proposal-view and aria-haspopup="dialog" --}}
                                 <a
                                     href="{{ route(($admin ? 'admin' : 'student').'.proposals.show', $proposal) }}"
+                                    data-proposal-view
+                                    aria-haspopup="dialog"
                                     class=" button button-secondary"
                                 >
                                     {{ __('View') }}

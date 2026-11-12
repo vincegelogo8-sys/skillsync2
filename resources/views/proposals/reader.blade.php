@@ -1,3 +1,4 @@
+{{-- FILE LOCATION: resources/views/proposals/reader.blade.php  (REPLACE the existing file) --}}
 <x-app-layout>
     <x-slot name="header"><h1 class="text-xl font-semibold text-gray-800">{{ __('Proposal Reader') }}</h1></x-slot>
 
@@ -10,7 +11,7 @@
             </div>
 
             <div class="relative z-10">
-                <a href="{{ $backUrl }}" class="button button-secondary">{{ __('Back') }}</a>
+                <a href="{{ $backUrl }}" data-embed-hide class="button button-secondary">{{ __('Back') }}</a> {{-- CHANGED: added data-embed-hide --}}
 
                 <h1 class="mt-6 text-2xl font-bold text-gray-900">{{ $proposal->title }}</h1>
 

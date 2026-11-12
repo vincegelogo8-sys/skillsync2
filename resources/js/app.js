@@ -1,3 +1,6 @@
+// FILE LOCATION: resources/js/app.js  (REPLACE the existing file; only change is the first import line)
+import './proposal-container'; // NEW LINE (the only change in this file)
+
 // Native dialogs handle keyboard focus, Escape, and focus restoration.
 document.querySelectorAll('[data-open-modal]').forEach((button) => {
     button.addEventListener('click', () => {

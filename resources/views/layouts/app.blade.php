@@ -1,3 +1,9 @@
+{{-- FILE LOCATION: resources/views/layouts/app.blade.php  (REPLACE the existing file; top 5 lines are NEW) --}}
+{{-- The proposal container (see resources/js/proposal-container.js) fetches a page and shows it
+     inside a dialog, so it asks for the page body only: no sidebar, top bar or nested dialog. --}}
+@if (request()->hasHeader('X-Proposal-Container'))
+{{ $slot }}
+@else
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -48,6 +54,9 @@
                 </main>
             </div>
         </div>
+        {{-- NEW LINE: shared proposal container --}}
+        <x-proposal-container />
         <x-confirm-dialog />
     </body>
 </html>
+@endif {{-- NEW: closes the @if at the top of this file --}}

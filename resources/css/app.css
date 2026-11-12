@@ -1,3 +1,4 @@
+/* FILE LOCATION: resources/css/app.css  (REPLACE the existing file; only change is the block between NEW CSS START and END) */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -465,6 +466,17 @@ thead th { background: var(--accent-light); color: var(--accent-hover); }
 .list-modal-count { font-size: 14px; font-weight: 500; color: var(--text-secondary); }
 .list-modal-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 24px 12px; }
 .list-modal-footer { padding: 12px 24px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-secondary); }
+/* ===== NEW CSS START (proposal container) — place right after .list-modal-footer ===== */
+/* One shared container for every "View proposal" button. Header stays put; only the body scrolls. */
+.proposal-container { width: min(96vw, 960px); padding: 0; border: 0; border-radius: 16px !important; background: #fff; color: var(--text-primary); box-shadow: 0 24px 60px rgba(7, 21, 68, .35); }
+.proposal-container::backdrop { background: rgba(7, 21, 68, .55); }
+.proposal-container[open] { display: flex; flex-direction: column; max-height: min(92dvh, 900px); overflow: hidden; }
+.proposal-container-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--border); }
+.proposal-container-header h2 { margin: 0; font-size: 18px; font-weight: 700; color: var(--navy); }
+.proposal-container-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 16px 24px 24px; }
+.proposal-container-body:focus-visible { outline-offset: -2px; }
+.proposal-container-message { padding: 24px 0; color: var(--text-secondary); font-size: 14px; }
+/* ===== NEW CSS END ===== */
 /* =====================================================================
    Workspace redesign: navy header, profile banner and dashboard cards.
    Scoped to the signed-in workspace (body.workspace). The sidebar, the

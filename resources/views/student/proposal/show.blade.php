@@ -1,3 +1,4 @@
+{{-- FILE LOCATION: resources/views/student/proposal/show.blade.php  (REPLACE the existing file) --}}
 <x-app-layout>
     <x-slot name="header">
         <h1 class="font-semibold text-xl text-gray-800">
@@ -11,8 +12,10 @@
 
             <section class="bg-white p-4 shadow sm:rounded-lg sm:p-8">
 
+                {{-- CHANGED: the next link got data-embed-hide --}}
                 <a
                     href="{{ route(($admin ? 'admin' : 'student').'.proposals.index') }}"
+                    data-embed-hide
                     class=" button button-secondary"
                 >
                     {{ __('Back to proposals') }}

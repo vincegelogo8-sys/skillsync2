@@ -1,3 +1,4 @@
+{{-- FILE LOCATION: resources/views/assignments/index.blade.php  (REPLACE; rename this file to index.blade.php) --}}
 <x-app-layout>
     <x-slot name="header"><h1 class="text-xl font-semibold text-gray-800">{{ $role === 'faculty' ? __('Assigned Students') : __('Adviser Assignments') }}</h1></x-slot>
 
@@ -19,7 +20,7 @@
                         </p>
                         <p class="mt-2 text-sm text-gray-700">{{ __('Approved by') }}: {{ $assignment->approver?->name ?? __('Former account') }}</p>
                         <p class="mt-2 text-xs text-gray-600">{{ __('Assigned') }} {{ $assignment->assigned_at->format('Y-m-d H:i T') }}</p>
-                        <a href="{{ route('student.proposals.show', $assignment->researchProposal) }}" class="mt-3 inline-block text-sm text-indigo-600 underline">{{ __('View proposal') }}</a>
+                        <a href="{{ route('student.proposals.show', $assignment->researchProposal) }}" data-proposal-view aria-haspopup="dialog" class="mt-3 inline-block text-sm text-indigo-600 underline">{{ __('View proposal') }}</a> {{-- CHANGED: added data-proposal-view aria-haspopup="dialog" --}}
                     </article>
                 @empty
                     <x-empty-state title="{{ __('No adviser assignments.') }}" />
@@ -148,7 +149,7 @@
                                                     <td class="cell-topic px-3 py-2">{{ $assignment->researchProposal->title }}</td>
                                                     <td class="cell-nowrap px-3 py-2">{{ $assignment->assigned_at?->format('Y-m-d') }}</td>
                                                     <td class="cell-name px-3 py-2">{{ $assignment->approver?->name ?? __('Former account') }}</td>
-                                                    <td class="cell-nowrap px-3 py-2"><a class="text-indigo-600 underline" href="{{ route('admin.proposals.show', $assignment->researchProposal) }}">{{ __('View proposal') }}</a></td>
+                                                    <td class="cell-nowrap px-3 py-2"><a class="text-indigo-600 underline" href="{{ route('admin.proposals.show', $assignment->researchProposal) }}" data-proposal-view aria-haspopup="dialog">{{ __('View proposal') }}</a></td> {{-- CHANGED: added data-proposal-view aria-haspopup="dialog" --}}
                                                     <td class="cell-nowrap px-3 py-2"><x-status-badge :status="$assignment->status" /></td>
                                                 </tr>
                                             @endforeach
@@ -181,7 +182,7 @@
                                 · {{ $studentProfile?->student_number ?? '—' }} · {{ $studentProfile?->course ?? '—' }} · {{ config('student_options.year_levels')[$studentProfile?->year_level] ?? '—' }} · {{ $studentProfile?->section ?? '—' }}
                             </p>
                             <p class="mt-1 text-xs text-gray-600">{{ __('Assigned') }} {{ $assignment->assigned_at?->format('Y-m-d H:i T') }} · {{ __('Approved by') }} {{ $assignment->approver?->name ?? __('Former account') }}</p>
-                            <a href="{{ route('admin.proposals.show', $assignment->researchProposal) }}" class="mt-2 inline-block text-sm text-indigo-600 underline">{{ __('View proposal') }}</a>
+                            <a href="{{ route('admin.proposals.show', $assignment->researchProposal) }}" data-proposal-view aria-haspopup="dialog" class="mt-2 inline-block text-sm text-indigo-600 underline">{{ __('View proposal') }}</a> {{-- CHANGED: added data-proposal-view aria-haspopup="dialog" --}}
                         </article>
                     @empty
                         <x-empty-state title="{{ __('No adviser assignments.') }}" />
@@ -222,7 +223,7 @@
                                     <p class="mt-1 text-sm text-gray-700">{{ __('Research topic') }}: {{ $assignment->researchProposal->title }}</p>
                                     <p class="mt-1 text-xs text-gray-600">{{ __('Assigned') }} {{ $assignment->assigned_at?->format('Y-m-d H:i T') }}</p>
                                     @if ($assignment->status === \App\Models\AdviserAssignment::STATUS_ACTIVE)
-                                        <a href="{{ route('faculty.assignments.proposal', $assignment) }}" class="mt-2 inline-block text-sm text-indigo-600 underline">{{ __('View proposal') }}</a>
+                                        <a href="{{ route('faculty.assignments.proposal', $assignment) }}" data-proposal-view aria-haspopup="dialog" class="mt-2 inline-block text-sm text-indigo-600 underline">{{ __('View proposal') }}</a> {{-- CHANGED: added data-proposal-view aria-haspopup="dialog" --}}
                                     @endif
                                 </article>
                             @endforeach

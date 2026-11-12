@@ -1,3 +1,4 @@
+{{-- FILE LOCATION: resources/views/requests/index.blade.php  (REPLACE; rename this file to index.blade.php) --}}
 <x-app-layout>
     <x-slot name="header"><h1 class="text-xl font-semibold text-gray-800">{{ __('Adviser Requests') }}</h1></x-slot>
 
@@ -39,9 +40,9 @@
                     @endif
                     <p class="mt-2 text-xs text-gray-600">{{ __('Requested') }} {{ $adviserRequest->requested_at->format('Y-m-d H:i T') }} @if ($adviserRequest->responded_at) · {{ __('Updated') }} {{ $adviserRequest->responded_at->format('Y-m-d H:i T') }} @endif</p>
                     <div class="mt-4 flex flex-wrap items-center gap-4">
-                        @if ($role === 'faculty')<a href="{{ route('adviser-requests.proposal', $adviserRequest) }}" class="button button-secondary inline-flex items-center">{{ __('View Proposal') }}</a>@endif
+                        @if ($role === 'faculty')<a href="{{ route('adviser-requests.proposal', $adviserRequest) }}" data-proposal-view aria-haspopup="dialog" class="button button-secondary inline-flex items-center">{{ __('View Proposal') }}</a>@endif {{-- CHANGED: added data-proposal-view aria-haspopup="dialog" --}}
                         @if ($role === 'student')<a href="{{ route('student.recommendations.index', $adviserRequest->researchProposal) }}" class="text-sm text-indigo-600 underline">{{ __('View recommendations') }}</a>@endif
-                        @if ($role === 'admin')<a href="{{ route('admin.proposals.show', $adviserRequest->researchProposal) }}" class="text-sm text-indigo-600 underline">{{ __('View proposal') }}</a>@endif
+                        @if ($role === 'admin')<a href="{{ route('admin.proposals.show', $adviserRequest->researchProposal) }}" data-proposal-view aria-haspopup="dialog" class="text-sm text-indigo-600 underline">{{ __('View proposal') }}</a>@endif {{-- CHANGED: added data-proposal-view aria-haspopup="dialog" --}}
                         @if ($role === 'student' && $adviserRequest->status === 'cancelled')
                             <form method="POST" action="{{ route('student.requests.destroy', $adviserRequest) }}" data-confirm="Remove this cancelled adviser request from your list? Its history will be retained." data-confirm-title="Remove request?" data-confirm-button="Yes, remove" data-confirm-tone="danger">
                                 @csrf @method('DELETE')

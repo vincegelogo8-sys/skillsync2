@@ -1,4 +1,5 @@
 <?php
+// FILE LOCATION: app/Http/Controllers/ResearchProposalController.php  (REPLACE the existing file; look for the "NEW"/"CHANGED" comments)
 
 namespace App\Http\Controllers;
 
@@ -12,9 +13,11 @@ use App\Services\ResearchProposalService;
 use App\Support\CollectionPaginator;
 use App\Support\ListSorting;
 use App\Support\NameSortKey;
+use App\Support\ProposalTextView; // NEW LINE
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response; // NEW LINE
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -273,7 +276,7 @@ class ResearchProposalController extends Controller
     public function show(
         Request $request,
         ResearchProposal $proposal
-    ): View {
+    ): View|Response { // CHANGED: was "): View {"
         $this->authorizeAccess(
             $request,
             $proposal
@@ -283,6 +286,11 @@ class ResearchProposalController extends Controller
             'analysis',
             'assignment.facultyProfile.user'
         );
+
+        // NEW BLOCK (3 lines): the container asks for the text only
+        if (ProposalTextView::requested($request)) {
+            return ProposalTextView::response($proposal);
+        }
 
         return view(
             'student.proposal.show',

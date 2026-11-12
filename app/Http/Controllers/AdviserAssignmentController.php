@@ -1,4 +1,5 @@
 <?php
+// FILE LOCATION: app/Http/Controllers/AdviserAssignmentController.php  (REPLACE the existing file; look for the "NEW" comments)
 
 namespace App\Http\Controllers;
 
@@ -10,6 +11,7 @@ use App\Services\AdvisoryThresholdService;
 use App\Support\CollectionPaginator;
 use App\Support\ListSorting;
 use App\Support\NameSortKey;
+use App\Support\ProposalTextView; // NEW LINE
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -161,6 +163,11 @@ class AdviserAssignmentController extends Controller
 
         $proposal = $assignment->researchProposal;
         abort_unless($proposal, 404);
+
+        // NEW BLOCK (3 lines): the container asks for the text only
+        if (ProposalTextView::requested($request)) {
+            return ProposalTextView::response($proposal, $request->user()->name);
+        }
 
         return response()->view('proposals.reader', [
             'proposal' => $proposal->loadMissing(['studentProfile.user', 'analysis']),
